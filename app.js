@@ -60,3 +60,8 @@
     msg.className = type;
   }
 })();
+window.onCaptchaSuccess = function (token) {
+  console.log("### TOKEN =", token);   // <-- ligne de debug
+  captchaToken = token;
+  …
+};
