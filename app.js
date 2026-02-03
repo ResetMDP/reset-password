@@ -1,16 +1,15 @@
-/* app.js – version corrigée */
-(function () {
+/* app.js – “envoi universel” du jeton Turnstile */
+(() => {
   const API_ENDPOINT =
     "https://apim-reset-pwd-fnaim.azure-api.net/reset-password/api/ResetPassword";
 
-  let captchaToken = "";          // jeton Turnstile
+  let captchaToken = "";         // jeton Turnstile
 
   const btn = document.getElementById("submitBtn");
   const msg = document.getElementById("message");
 
-  // callback Turnstile (déclaré dans data-callback)
-  window.onCaptchaSuccess = function (token) {
-    console.log("### TOKEN =", token);   // debug : peut être retiré après test
+  // callback déclarée dans data-callback="onCaptchaSuccess"
+  window.onCaptchaSuccess = (token) => {
     captchaToken = token;
     btn.disabled = false;
     btn.classList.add("enabled");
@@ -22,14 +21,8 @@
     const login = document.getElementById("userPrincipalName").value.trim();
     const email = document.getElementById("emailToVerify").value.trim();
 
-    if (!login || !email) {
-      show("Veuillez remplir tous les champs.", "error");
-      return;
-    }
-    if (!captchaToken) {
-      show("CAPTCHA non validé.", "error");
-      return;
-    }
+    if (!login || !email) { show("Veuillez remplir tous les champs.", "error"); return; }
+    if (!captchaToken)   { show("CAPTCHA non validé.", "error");       return; }
 
     btn.disabled = true;
     show("Envoi en cours…", "");
@@ -39,9 +32,16 @@
         method : "POST",
         headers: {
           "Content-Type"          : "application/json",
-          "cf-turnstile-response" : captchaToken      // envoyé dans l’en-tête
+          "cf-turnstile-response" : captchaToken,
+          "cf-turnstile-token"    : captchaToken,
+          "turnstile-response"    : captchaToken
         },
-        body: JSON.stringify({ userPrincipalName: login, emailToVerify: email })
+        body: JSON.stringify({
+          userPrincipalName: login,
+          emailToVerify    : email,
+          turnstileToken   : captchaToken,
+          token            : captchaToken
+        })
       });
 
       if (resp.status === 202)
@@ -52,7 +52,6 @@
         show("Validation CAPTCHA échouée. Rechargez la page.", "error");
       else
         show(`Erreur ${resp.status}`, "error");
-
     } catch (e) {
       show("Erreur réseau : " + e.message, "error");
     } finally {
@@ -65,6 +64,6 @@
 
   function show(text, type) {
     msg.textContent = text;
-    msg.className = type;
+    msg.className   = type;
   }
 })();
