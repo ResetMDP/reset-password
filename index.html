@@ -30,7 +30,7 @@
       font-weight: 600;  
       color: #333;  
     }  
-    input {  
+    input[type="text"], input[type="email"] {  
       width: 100%;  
       padding: 12px;  
       border: 2px solid #ddd;  
@@ -42,6 +42,25 @@
       outline: none;  
       border-color: #FFD700;  
       box-shadow: 0 0 0 3px rgba(255,215,0,0.2);  
+    }  
+    .checkbox-group {  
+      margin: 20px 0;  
+      padding: 15px;  
+      background-color: #FFFACD;  
+      border: 2px solid #FFD700;  
+      border-radius: 4px;  
+    }  
+    .checkbox-group label {  
+      display: flex;  
+      align-items: center;  
+      cursor: pointer;  
+      font-weight: 500;  
+    }  
+    .checkbox-group input[type="checkbox"] {  
+      width: 20px;  
+      height: 20px;  
+      margin-right: 10px;  
+      cursor: pointer;  
     }  
     button {  
       background-color: #FFD700;  
@@ -57,7 +76,7 @@
       text-transform: uppercase;  
       letter-spacing: 0.5px;  
     }  
-    button:hover {  
+    button:hover:not(:disabled) {  
       background-color: #FFC700;  
       transform: translateY(-1px);  
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);  
@@ -93,7 +112,7 @@
   </style>  
 </head>  
 <body>  
-  
+&nbsp;  
   <div class="container">  
     <h2>🔐 Réinitialisation de mot de passe FNAIM</h2>  
       
@@ -115,6 +134,13 @@
       <input type="email" id="emailToVerify" placeholder="votre.email@gmail.com" />  
     </div>  
       
+    <div class="checkbox-group">  
+      <label>  
+        <input type="checkbox" id="confirmCheckbox" />  
+        <span>Je confirme vouloir réinitialiser mon mot de passe et avoir vérifié mes informations</span>  
+      </label>  
+    </div>  
+      
     <div class="cf-turnstile" data-sitekey="0x4AAAAAACWxWgU87pNFtMOF" data-callback="onCaptchaSuccess"></div>  
       
     <button onclick="resetPassword()" id="submitBtn" disabled>Réinitialiser mon mot de passe</button>  
@@ -127,14 +153,32 @@ var captchaToken = null;
   
 function onCaptchaSuccess(token) {  
   captchaToken = token;  
-  document.getElementById('submitBtn').disabled = false;  
+  updateButtonState();  
 }  
+  
+function updateButtonState() {  
+  var checkbox = document.getElementById('confirmCheckbox');  
+  var submitBtn = document.getElementById('submitBtn');  
+  submitBtn.disabled = !(checkbox.checked && captchaToken);  
+}  
+  
+document.getElementById('confirmCheckbox').addEventListener('change', updateButtonState);  
   
 function resetPassword() {  
   var upn = document.getElementById('userPrincipalName').value;  
   var email = document.getElementById('emailToVerify').value;  
   var messageDiv = document.getElementById('message');  
   var submitBtn = document.getElementById('submitBtn');  
+  var checkbox = document.getElementById('confirmCheckbox');  
+    
+  if (!checkbox.checked) {  
+    messageDiv.style.display = 'block';  
+    messageDiv.style.backgroundColor = '#fff4ce';  
+    messageDiv.style.border = '2px solid #FFD700';  
+    messageDiv.style.color = '#8a6d3b';  
+    messageDiv.innerHTML = 'Veuillez cocher la case de confirmation.';  
+    return;  
+  }  
     
   if (!captchaToken) {  
     messageDiv.style.display = 'block';  
@@ -188,6 +232,8 @@ function resetPassword() {
       return response.json();  
     } else if (response.status === 403) {  
       throw new Error('CAPTCHA_FAILED');  
+    } else if (response.status === 429) {  
+      throw new Error('TOO_MANY_REQUESTS');  
     } else {  
       throw new Error('HTTP ' + response.status);  
     }  
@@ -198,8 +244,12 @@ function resetPassword() {
     messageDiv.style.color = '#2d5f3d';  
     messageDiv.innerHTML = 'Demande enregistree avec succes ! Vous allez recevoir un email dans quelques instants. Verifiez votre boite email et vos spams.';  
     submitBtn.disabled = false;  
+    checkbox.checked = false;  
     captchaToken = null;  
-    turnstile.reset();  
+    if (typeof turnstile !== 'undefined') {  
+      turnstile.reset();  
+    }  
+    updateButtonState();  
   })  
   .catch(function(error) {  
     if (error.message === 'CAPTCHA_FAILED') {  
@@ -207,9 +257,16 @@ function resetPassword() {
       messageDiv.style.border = '2px solid #cc0000';  
       messageDiv.style.color = '#cc0000';  
       messageDiv.innerHTML = 'Erreur : Verification CAPTCHA echouee. Veuillez reessayer.';  
-      turnstile.reset();  
+      if (typeof turnstile !== 'undefined') {  
+        turnstile.reset();  
+      }  
       captchaToken = null;  
-      submitBtn.disabled = true;  
+      updateButtonState();  
+    } else if (error.message === 'TOO_MANY_REQUESTS') {  
+      messageDiv.style.backgroundColor = '#ffe6e6';  
+      messageDiv.style.border = '2px solid #cc0000';  
+      messageDiv.style.color = '#cc0000';  
+      messageDiv.innerHTML = 'Trop de tentatives. Veuillez reessayer dans 10 minutes.';  
     } else {  
       messageDiv.style.backgroundColor = '#ffe6e6';  
       messageDiv.style.border = '2px solid #cc0000';  
@@ -221,6 +278,6 @@ function resetPassword() {
   });  
 }  
 </script>  
- 
+  
 </body>  
-</html>
+</html>  
