@@ -1,283 +1,60 @@
-<!DOCTYPE html>  
-<html>  
-<head>  
-  <meta charset="UTF-8">  
-  <title>Réinitialisation Mot de Passe - FNAIM</title>  
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>  
-  <style>  
-    body {  
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  
-      max-width: 600px;  
-      margin: 50px auto;  
-      padding: 20px;  
-      background-color: #f5f5f5;  
-    }  
-    h2 {  
-      color: #FFD700;  
-      background-color: #333;  
-      padding: 15px;  
-      margin: -20px -20px 20px -20px;  
-      text-align: center;  
-      border-radius: 4px 4px 0 0;  
-      font-size: 22px;  
-    }  
-    .form-group {  
-      margin-bottom: 20px;  
-    }  
-    label {  
-      display: block;  
-      margin-bottom: 5px;  
-      font-weight: 600;  
-      color: #333;  
-    }  
-    input[type="text"], input[type="email"] {  
-      width: 100%;  
-      padding: 12px;  
-      border: 2px solid #ddd;  
-      border-radius: 4px;  
-      font-size: 14px;  
-      box-sizing: border-box;  
-    }  
-    input:focus {  
-      outline: none;  
-      border-color: #FFD700;  
-      box-shadow: 0 0 0 3px rgba(255,215,0,0.2);  
-    }  
-    .checkbox-group {  
-      margin: 20px 0;  
-      padding: 15px;  
-      background-color: #FFFACD;  
-      border: 2px solid #FFD700;  
-      border-radius: 4px;  
-    }  
-    .checkbox-group label {  
-      display: flex;  
-      align-items: center;  
-      cursor: pointer;  
-      font-weight: 500;  
-    }  
-    .checkbox-group input[type="checkbox"] {  
-      width: 20px;  
-      height: 20px;  
-      margin-right: 10px;  
-      cursor: pointer;  
-    }  
-    button {  
-      background-color: #FFD700;  
-      color: #333;  
-      padding: 14px 32px;  
-      border: none;  
-      border-radius: 4px;  
-      font-size: 16px;  
-      cursor: pointer;  
-      font-weight: 700;  
-      width: 100%;  
-      transition: all 0.2s;  
-      text-transform: uppercase;  
-      letter-spacing: 0.5px;  
-    }  
-    button:hover:not(:disabled) {  
-      background-color: #FFC700;  
-      transform: translateY(-1px);  
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);  
-    }  
-    button:disabled {  
-      background-color: #ccc;  
-      cursor: not-allowed;  
-      transform: none;  
-    }  
-    #message {  
-      margin-top: 20px;  
-      padding: 15px;  
-      border-radius: 4px;  
-      display: none;  
-    }  
-    .info-box {  
-      background-color: #FFFACD;  
-      border-left: 4px solid #FFD700;  
-      padding: 12px;  
-      margin-bottom: 20px;  
-      border-radius: 4px;  
-      color: #333;  
-    }  
-    .container {  
-      background-color: white;  
-      padding: 30px;  
-      border-radius: 8px;  
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);  
-    }  
-    .cf-turnstile {  
-      margin: 20px 0;  
-    }  
-  </style>  
-</head>  
-<body>  
-&nbsp;  
-  <div class="container">  
-    <h2>🔐 Réinitialisation de mot de passe FNAIM</h2>  
-      
-    <div class="info-box">  
-      <strong>Vous avez oublié votre mot de passe ?</strong>  
-  
-      Remplissez le formulaire ci-dessous.  
-  
-      SI vos informations sont correctes, vous recevrez un email avec votre nouveau mot de passe temporaire.  
-    </div>  
-  
-    <div class="form-group">  
-      <label>Votre login professionnel :</label>  
-      <input type="text" id="userPrincipalName" placeholder="exemple@fnaim.fr" />  
-    </div>  
-      
-    <div class="form-group">  
-      <label>Votre email personnel :</label>  
-      <input type="email" id="emailToVerify" placeholder="votre.email@gmail.com" />  
-    </div>  
-      
-    <div class="checkbox-group">  
-      <label>  
-        <input type="checkbox" id="confirmCheckbox" />  
-        <span>Je confirme vouloir réinitialiser mon mot de passe et avoir vérifié mes informations</span>  
-      </label>  
-    </div>  
-      
-    <div class="cf-turnstile" data-sitekey="0x4AAAAAACWxWgU87pNFtMOF" data-callback="onCaptchaSuccess"></div>  
-      
-    <button onclick="resetPassword()" id="submitBtn" disabled>Réinitialiser mon mot de passe</button>  
-      
-    <div id="message"></div>  
-  </div>  
-  
-<script>  
-var captchaToken = null;  
-  
-function onCaptchaSuccess(token) {  
-  captchaToken = token;  
-  updateButtonState();  
-}  
-  
-function updateButtonState() {  
-  var checkbox = document.getElementById('confirmCheckbox');  
-  var submitBtn = document.getElementById('submitBtn');  
-  submitBtn.disabled = !(checkbox.checked && captchaToken);  
-}  
-  
-document.getElementById('confirmCheckbox').addEventListener('change', updateButtonState);  
-  
-function resetPassword() {  
-  var upn = document.getElementById('userPrincipalName').value;  
-  var email = document.getElementById('emailToVerify').value;  
-  var messageDiv = document.getElementById('message');  
-  var submitBtn = document.getElementById('submitBtn');  
-  var checkbox = document.getElementById('confirmCheckbox');  
-    
-  if (!checkbox.checked) {  
-    messageDiv.style.display = 'block';  
-    messageDiv.style.backgroundColor = '#fff4ce';  
-    messageDiv.style.border = '2px solid #FFD700';  
-    messageDiv.style.color = '#8a6d3b';  
-    messageDiv.innerHTML = 'Veuillez cocher la case de confirmation.';  
-    return;  
-  }  
-    
-  if (!captchaToken) {  
-    messageDiv.style.display = 'block';  
-    messageDiv.style.backgroundColor = '#fff4ce';  
-    messageDiv.style.border = '2px solid #FFD700';  
-    messageDiv.style.color = '#8a6d3b';  
-    messageDiv.innerHTML = 'Veuillez valider le CAPTCHA.';  
-    return;  
-  }  
-    
-  if (!upn || !email) {  
-    messageDiv.style.display = 'block';  
-    messageDiv.style.backgroundColor = '#fff4ce';  
-    messageDiv.style.border = '2px solid #FFD700';  
-    messageDiv.style.color = '#8a6d3b';  
-    messageDiv.innerHTML = 'Veuillez remplir votre login professionnel ET votre email personnel.';  
-    return;  
-  }  
-    
-  if (!upn.includes('@') || !email.includes('@')) {  
-    messageDiv.style.display = 'block';  
-    messageDiv.style.backgroundColor = '#fff4ce';  
-    messageDiv.style.border = '2px solid #FFD700';  
-    messageDiv.style.color = '#8a6d3b';  
-    messageDiv.innerHTML = 'Format incorrect : Verifiez que vous avez bien saisi des adresses email completes.';  
-    return;  
-  }  
-    
-  messageDiv.style.display = 'block';  
-  messageDiv.style.backgroundColor = '#FFFACD';  
-  messageDiv.style.border = '2px solid #FFD700';  
-  messageDiv.style.color = '#333';  
-  messageDiv.innerHTML = 'Demande en cours de traitement...';  
-  submitBtn.disabled = true;  
-    
-  var data = {  
-    userPrincipalName: upn,  
-    emailToVerify: email,  
-    captchaToken: captchaToken  
-  };  
-    
-  fetch('https://apim-reset-pwd-fnaim.azure-api.net/reset-password/api/ResetPassword', {  
-    method: 'POST',  
-    headers: {   
-      'Content-Type': 'application/json'  
-    },  
-    body: JSON.stringify(data)  
-  })  
-  .then(function(response) {  
-    if (response.ok) {  
-      return response.json();  
-    } else if (response.status === 403) {  
-      throw new Error('CAPTCHA_FAILED');  
-    } else if (response.status === 429) {  
-      throw new Error('TOO_MANY_REQUESTS');  
-    } else {  
-      throw new Error('HTTP ' + response.status);  
-    }  
-  })  
-  .then(function(result) {  
-    messageDiv.style.backgroundColor = '#F0FFF0';  
-    messageDiv.style.border = '2px solid #7FC39A';  
-    messageDiv.style.color = '#2d5f3d';  
-    messageDiv.innerHTML = 'Demande enregistree avec succes ! Vous allez recevoir un email dans quelques instants. Verifiez votre boite email et vos spams.';  
-    submitBtn.disabled = false;  
-    checkbox.checked = false;  
-    captchaToken = null;  
-    if (typeof turnstile !== 'undefined') {  
-      turnstile.reset();  
-    }  
-    updateButtonState();  
-  })  
-  .catch(function(error) {  
-    if (error.message === 'CAPTCHA_FAILED') {  
-      messageDiv.style.backgroundColor = '#ffe6e6';  
-      messageDiv.style.border = '2px solid #cc0000';  
-      messageDiv.style.color = '#cc0000';  
-      messageDiv.innerHTML = 'Erreur : Verification CAPTCHA echouee. Veuillez reessayer.';  
-      if (typeof turnstile !== 'undefined') {  
-        turnstile.reset();  
-      }  
-      captchaToken = null;  
-      updateButtonState();  
-    } else if (error.message === 'TOO_MANY_REQUESTS') {  
-      messageDiv.style.backgroundColor = '#ffe6e6';  
-      messageDiv.style.border = '2px solid #cc0000';  
-      messageDiv.style.color = '#cc0000';  
-      messageDiv.innerHTML = 'Trop de tentatives. Veuillez reessayer dans 10 minutes.';  
-    } else {  
-      messageDiv.style.backgroundColor = '#ffe6e6';  
-      messageDiv.style.border = '2px solid #cc0000';  
-      messageDiv.style.color = '#cc0000';  
-      messageDiv.innerHTML = 'Erreur : Verifiez votre login professionnel. Si le probleme persiste, contactez le support IT.';  
-    }  
-    submitBtn.disabled = false;  
-    console.error('Erreur:', error);  
-  });  
-}  
-</script>  
-  
-</body>  
-</html>  
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Réinitialisation de mot de passe · FNAIM</title>
+
+  <!-- Chargement du widget Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:2rem;background:#f5f5f5}
+    h2{margin-top:0}
+    .card{max-width:420px;margin:auto;background:#fff;border-radius:8px;padding:24px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+    .info-box{background:#eef5ff;padding:12px 16px;border-left:4px solid #0a53be;margin-bottom:16px}
+    .form-group{margin-bottom:12px}
+    label{display:block;font-weight:600;margin-bottom:4px}
+    input[type=text],input[type=email]{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px}
+    button{margin-top:16px;width:100%;padding:10px;font-size:1rem;font-weight:600;border:none;border-radius:4px;background:#0a53be;color:#fff;cursor:pointer;opacity:.6}
+    button.enabled{opacity:1;cursor:pointer}
+    #message{margin-top:16px;font-weight:600}
+    #message.success{color:#155724}
+    #message.error{color:#721c24}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>🔐 Réinitialisation de mot de passe FNAIM</h2>
+
+    <div class="info-box">
+      <strong>Vous avez oublié votre mot de passe&nbsp;?</strong><br>
+      Remplissez le formulaire ci-dessous ;<br>
+      si les informations sont correctes, vous recevrez un e-mail avec un mot de passe temporaire.
+    </div>
+
+    <div class="form-group">
+      <label for="userPrincipalName">Votre login professionnel</label>
+      <input type="text" id="userPrincipalName" placeholder="exemple@fnaim.fr">
+    </div>
+
+    <div class="form-group">
+      <label for="emailToVerify">Votre email personnel</label>
+      <input type="email" id="emailToVerify" placeholder="votre.email@gmail.com">
+    </div>
+
+    <!-- Widget Turnstile -->
+    <div class="cf-turnstile"
+         data-sitekey="0x4AAAAAACWxWgU87pNFtMOF"
+         data-callback="onCaptchaSuccess">
+    </div>
+
+    <button id="submitBtn" disabled>Réinitialiser mon mot de passe</button>
+
+    <div id="message"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
