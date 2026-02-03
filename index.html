@@ -1,27 +1,70 @@
-<!-- index.html -->
+<!-- index.html – version FNAIM (jaune + anthracite) -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="utf-8">
   <title>Réinitialisation de mot de passe · FNAIM</title>
 
-  <!-- Chargement du widget Turnstile -->
+  <!-- Turnstile -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:2rem;background:#f5f5f5}
-    h2{margin-top:0}
-    .card{max-width:420px;margin:auto;background:#fff;border-radius:8px;padding:24px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
-    .info-box{background:#eef5ff;padding:12px 16px;border-left:4px solid #0a53be;margin-bottom:16px}
+    /* Palette FNAIM */
+    :root{
+      --fnaim-yellow:#ffd500;
+      --fnaim-dark:#101010;
+      --fnaim-light:#fffef6;
+    }
+
+    /* Mise en page */
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      margin:2rem;
+      background:var(--fnaim-light);
+      color:var(--fnaim-dark);
+    }
+    h2{margin-top:0;color:var(--fnaim-dark);}
+
+    .card{
+      max-width:420px;margin:auto;
+      background:#fff;border-radius:8px;
+      padding:24px;
+      box-shadow:0 2px 6px rgba(0,0,0,.12);
+    }
+
+    /* Encadré info */
+    .info-box{
+      background:var(--fnaim-yellow);
+      color:var(--fnaim-dark);
+      padding:12px 16px;
+      border-left:4px solid var(--fnaim-dark);
+      margin-bottom:16px;
+    }
+
+    /* Formulaire */
     .form-group{margin-bottom:12px}
     label{display:block;font-weight:600;margin-bottom:4px}
-    input[type=text],input[type=email]{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px}
-    button{margin-top:16px;width:100%;padding:10px;font-size:1rem;font-weight:600;border:none;border-radius:4px;background:#0a53be;color:#fff;cursor:pointer;opacity:.6}
+    input[type=text],input[type=email]{
+      width:100%;padding:8px;
+      border:1px solid #ccc;border-radius:4px
+    }
+
+    /* Bouton */
+    button{
+      margin-top:16px;width:100%;
+      padding:10px;font-size:1rem;font-weight:700;
+      border:none;border-radius:4px;
+      background:var(--fnaim-dark);color:#fff;
+      cursor:not-allowed;opacity:.6;transition:opacity .2s
+    }
     button.enabled{opacity:1;cursor:pointer}
+
+    /* Messages */
     #message{margin-top:16px;font-weight:600}
-    #message.success{color:#155724}
-    #message.error{color:#721c24}
+    #message.success{color:#0a7c0a}
+    #message.error{color:#c00}
   </style>
 </head>
 <body>
@@ -30,8 +73,8 @@
 
     <div class="info-box">
       <strong>Vous avez oublié votre mot de passe&nbsp;?</strong><br>
-      Remplissez le formulaire ci-dessous ;<br>
-      si les informations sont correctes, vous recevrez un e-mail avec un mot de passe temporaire.
+      Remplissez le formulaire ci-dessous ; si les informations sont correctes,
+      vous recevrez un e-mail avec un mot de passe temporaire.
     </div>
 
     <div class="form-group">
@@ -44,7 +87,7 @@
       <input type="email" id="emailToVerify" placeholder="votre.email@gmail.com">
     </div>
 
-    <!-- Widget Turnstile -->
+    <!-- Turnstile -->
     <div class="cf-turnstile"
          data-sitekey="0x4AAAAAACWxWgU87pNFtMOF"
          data-callback="onCaptchaSuccess">
@@ -55,6 +98,7 @@
     <div id="message"></div>
   </div>
 
+  <!-- JS externe -->
   <script src="app.js"></script>
 </body>
 </html>
