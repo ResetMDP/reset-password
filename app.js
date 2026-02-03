@@ -1,15 +1,16 @@
-/* app.js */
+/* app.js – version corrigée */
 (function () {
   const API_ENDPOINT =
     "https://apim-reset-pwd-fnaim.azure-api.net/reset-password/api/ResetPassword";
 
-  let captchaToken = "";  // jeton Turnstile
+  let captchaToken = "";          // jeton Turnstile
 
   const btn = document.getElementById("submitBtn");
   const msg = document.getElementById("message");
 
-  // callback Turnstile
+  // callback Turnstile (déclaré dans data-callback)
   window.onCaptchaSuccess = function (token) {
+    console.log("### TOKEN =", token);   // debug : peut être retiré après test
     captchaToken = token;
     btn.disabled = false;
     btn.classList.add("enabled");
@@ -21,8 +22,14 @@
     const login = document.getElementById("userPrincipalName").value.trim();
     const email = document.getElementById("emailToVerify").value.trim();
 
-    if (!login || !email) { show("Veuillez remplir tous les champs.", "error"); return; }
-    if (!captchaToken)     { show("CAPTCHA non validé.", "error"); return; }
+    if (!login || !email) {
+      show("Veuillez remplir tous les champs.", "error");
+      return;
+    }
+    if (!captchaToken) {
+      show("CAPTCHA non validé.", "error");
+      return;
+    }
 
     btn.disabled = true;
     show("Envoi en cours…", "");
@@ -32,7 +39,7 @@
         method : "POST",
         headers: {
           "Content-Type"          : "application/json",
-          "cf-turnstile-response" : captchaToken     // ← attendu par la Function
+          "cf-turnstile-response" : captchaToken      // envoyé dans l’en-tête
         },
         body: JSON.stringify({ userPrincipalName: login, emailToVerify: email })
       });
@@ -45,6 +52,7 @@
         show("Validation CAPTCHA échouée. Rechargez la page.", "error");
       else
         show(`Erreur ${resp.status}`, "error");
+
     } catch (e) {
       show("Erreur réseau : " + e.message, "error");
     } finally {
@@ -60,8 +68,3 @@
     msg.className = type;
   }
 })();
-window.onCaptchaSuccess = function (token) {
-  console.log("### TOKEN =", token);   // <-- ligne de debug
-  captchaToken = token;
-  …
-};
