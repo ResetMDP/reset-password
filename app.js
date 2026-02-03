@@ -1,20 +1,21 @@
-/* app.js */
+/* app.js  */
 (function () {
   const API_ENDPOINT =
     "https://apim-reset-pwd-fnaim.azure-api.net/reset-password/api/ResetPassword";
 
+  let captchaToken = "";                 // ① variable globale
+
   const btn = document.getElementById("submitBtn");
   const msg = document.getElementById("message");
 
-  // Callback Turnstile (déclaré dans data-callback)
-  window.onCaptchaSuccess = function () {
+  // ② callback appelé par Turnstile
+  window.onCaptchaSuccess = function (token) {
+    captchaToken = token;                // mémorise le jeton
     btn.disabled = false;
     btn.classList.add("enabled");
   };
 
-  // Click sur le bouton
   btn.addEventListener("click", async () => {
-    // Double-clic & état initial
     if (btn.disabled) return;
 
     const login = document.getElementById("userPrincipalName").value.trim();
@@ -22,6 +23,10 @@
 
     if (!login || !email) {
       show("Veuillez remplir tous les champs.", "error");
+      return;
+    }
+    if (!captchaToken) {
+      show("CAPTCHA non validé.", "error");
       return;
     }
 
@@ -32,7 +37,11 @@
       const resp = await fetch(API_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userPrincipalName: login, emailToVerify: email })
+        body: JSON.stringify({
+          userPrincipalName: login,
+          emailToVerify:     email,
+          turnstileToken:    captchaToken    // ③ envoi du jeton
+        })
       });
 
       if (resp.status === 202) {
@@ -42,15 +51,15 @@
       } else if (resp.status === 403) {
         show("Validation CAPTCHA échouée. Rechargez la page.", "error");
       } else {
-        const txt = await resp.text();
-        show(`Erreur ${resp.status} : ${txt}`, "error");
+        show(`Erreur ${resp.status}`, "error");
       }
     } catch (e) {
       show("Erreur réseau : " + e.message, "error");
     } finally {
-      // Reset bouton & widget Turnstile
+      // ④ on réinitialise tout
       btn.disabled = true;
       btn.classList.remove("enabled");
+      captchaToken = "";
       if (window.turnstile) turnstile.reset();
     }
   });
