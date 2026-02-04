@@ -1,104 +1,54 @@
-<!-- index.html – version FNAIM (jaune + anthracite) -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <title>Réinitialisation de mot de passe · FNAIM</title>
-
-  <!-- Turnstile -->
+  <meta charset="UTF-8" />
+  <title>Réinitialisation Mot de Passe - FNAIM (TEST 1)</title>
+  <!-- Turnstile (Cloudflare) -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* Palette FNAIM */
-    :root{
-      --fnaim-yellow:#ffd500;
-      --fnaim-dark:#101010;
-      --fnaim-light:#fffef6;
-    }
-
-    /* Mise en page */
-    body{
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-      margin:2rem;
-      background:var(--fnaim-light);
-      color:var(--fnaim-dark);
-    }
-    h2{margin-top:0;color:var(--fnaim-dark);}
-
-    .card{
-      max-width:420px;margin:auto;
-      background:#fff;border-radius:8px;
-      padding:24px;
-      box-shadow:0 2px 6px rgba(0,0,0,.12);
-    }
-
-    /* Encadré info */
-    .info-box{
-      background:var(--fnaim-yellow);
-      color:var(--fnaim-dark);
-      padding:12px 16px;
-      border-left:4px solid var(--fnaim-dark);
-      margin-bottom:16px;
-    }
-
-    /* Formulaire */
-    .form-group{margin-bottom:12px}
-    label{display:block;font-weight:600;margin-bottom:4px}
-    input[type=text],input[type=email]{
-      width:100%;padding:8px;
-      border:1px solid #ccc;border-radius:4px
-    }
-
-    /* Bouton */
-    button{
-      margin-top:16px;width:100%;
-      padding:10px;font-size:1rem;font-weight:700;
-      border:none;border-radius:4px;
-      background:var(--fnaim-dark);color:#fff;
-      cursor:not-allowed;opacity:.6;transition:opacity .2s
-    }
-    button.enabled{opacity:1;cursor:pointer}
-
-    /* Messages */
-    #message{margin-top:16px;font-weight:600}
-    #message.success{color:#0a7c0a}
-    #message.error{color:#c00}
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 640px; margin: 40px auto; padding: 20px; background-color: #f5f5f5; }
+    .container { background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+    h2 { margin: 0 0 16px; background:#333; color:#FFD700; padding: 12px 16px; border-radius: 6px; font-size: 20px; }
+    .form-group { margin-bottom: 16px; }
+    label { display:block; font-weight:600; margin-bottom:6px; }
+    input { width:100%; padding:12px; border:1px solid #ddd; border-radius:6px; font-size:14px; }
+    input:focus { outline:none; border-color:#FFD700; box-shadow:0 0 0 3px rgba(255,215,0,.2); }
+    .cf-turnstile { margin: 16px 0; }
+    button { width:100%; background:#FFD700; color:#333; border:0; border-radius:6px; padding:14px 18px; font-weight:700; cursor:pointer; }
+    button:hover { background:#FFC700; }
+    button:disabled { background:#ccc; cursor:not-allowed; }
+    #message { display:none; margin-top:16px; padding:12px; border-radius:6px; }
+    .info-box { background:#FFFACD; border-left:4px solid #FFD700; padding:12px; border-radius:6px; color:#333; margin-bottom:16px; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>🔐 Réinitialisation de mot de passe FNAIM</h2>
+  <div class="container">
+    <h2>🔐 Réinitialisation de mot de passe FNAIM — TEST 1</h2>
 
     <div class="info-box">
-      <strong>Vous avez oublié votre mot de passe&nbsp;?</strong><br>
-      Remplissez le formulaire ci-dessous ; si les informations sont correctes,
-      vous recevrez un e-mail avec un mot de passe temporaire.
+      <strong>But du TEST 1 :</strong> vérifier que le <em>token CAPTCHA</em> est bien reçu côté navigateur et envoyé dans le body JSON.
+      <br/>Aucune modification backend (APIM/Function) nécessaire à ce stade.
     </div>
 
     <div class="form-group">
-      <label for="userPrincipalName">Votre login professionnel</label>
-      <input type="text" id="userPrincipalName" placeholder="exemple@fnaim.fr">
+      <label>Votre login professionnel :</label>
+      <input type="text" id="userPrincipalName" placeholder="exemple@fnaim.fr" />
     </div>
 
     <div class="form-group">
-      <label for="emailToVerify">Votre email personnel</label>
-      <input type="email" id="emailToVerify" placeholder="votre.email@gmail.com">
+      <label>Votre email personnel :</label>
+      <input type="email" id="emailToVerify" placeholder="votre.email@gmail.com" />
     </div>
 
-    <!-- Turnstile -->
-    <div class="cf-turnstile"
-         data-sitekey="0x4AAAAAACWxWgU87pNFtMOF"
-         data-callback="onCaptchaSuccess">
-    </div>
+    <!-- Turnstile widget : garde bien data-callback="onCaptchaSuccess" -->
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAACWxWgU87pNFtMOF" data-callback="onCaptchaSuccess"></div>
 
-    <button id="submitBtn" disabled>Réinitialiser mon mot de passe</button>
-
+    <button id="submitBtn" disabled onclick="resetPassword()">Réinitialiser mon mot de passe</button>
     <div id="message"></div>
   </div>
 
-  <!-- JS externe -->
+  <!-- Ton script applicatif du TEST 1 -->
   <script src="app.js"></script>
 </body>
 </html>
