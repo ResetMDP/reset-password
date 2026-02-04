@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <title>Réinitialisation Mot de Passe - FNAIM</title>
-  https://challenges.cloudflare.com/turnstile/v0/api.js</script>
+
+  <!-- Cloudflare Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
@@ -14,26 +17,55 @@
       padding: 20px; 
       background: #f5f5f5; 
     }
-    .container { background:#fff; padding:24px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,.1); }
-    h2 { background:#333; color:#FFD700; padding:12px 16px; border-radius:6px; margin:0 0 16px; font-size:20px; }
+    .container { 
+      background:#fff; 
+      padding:24px; 
+      border-radius:8px; 
+      box-shadow:0 2px 10px rgba(0,0,0,.15);
+    }
+    h2 { 
+      background:#333; 
+      color:#FFD700; 
+      padding:12px 16px; 
+      border-radius:6px; 
+      margin:0 0 16px; 
+      font-size:20px; 
+      text-align:center;
+    }
     .form-group { margin-bottom:16px; }
     label { display:block; font-weight:600; margin-bottom:6px; }
     input {
-      width:100%; padding:12px; border:1px solid #ddd; border-radius:6px;
+      width:100%; 
+      padding:12px; 
+      border:1px solid #ddd; 
+      border-radius:6px; 
+      font-size:14px;
     }
-    .cf-turnstile { margin:16px 0; }
+    .cf-turnstile { margin:16px 0; text-align:center; }
+
     button {
-      width:100%; background:#FFD700; color:#333; border:0; border-radius:6px;
-      padding:14px; font-weight:700; cursor:pointer;
+      width:100%; 
+      background:#FFD700; 
+      color:#333; 
+      border:0; 
+      border-radius:6px;
+      padding:14px; 
+      font-weight:700; 
+      cursor:pointer;
     }
     button:disabled { background:#ccc; cursor:not-allowed; }
+
     #message {
-      display:none; margin-top:16px; padding:12px; border-radius:6px;
+      display:none; 
+      margin-top:16px; 
+      padding:12px; 
+      border-radius:6px;
     }
   </style>
 </head>
 
 <body>
+
 <div class="container">
   <h2>🔐 Réinitialisation de mot de passe FNAIM</h2>
 
@@ -47,12 +79,18 @@
     <input type="email" id="emailToVerify" placeholder="prenom.nom@gmail.com">
   </div>
 
-  <div class="cf-turnstile" data-sitekey="0x4AAAAAACWxWgU87pNFtMOF" data-callback="onCaptchaSuccess"></div>
+  <div class="cf-turnstile" 
+       data-sitekey="0x4AAAAAACWxWgU87pNFtMOF" 
+       data-callback="onCaptchaSuccess">
+  </div>
 
   <button id="submitBtn" disabled onclick="resetPassword()">Réinitialiser mon mot de passe</button>
+
   <div id="message"></div>
 </div>
 
-app.js?v=2</script>
+<!-- Ton vrai JS -->
+<script src="app.js?v=3"></script>
+
 </body>
 </html>
