@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Définir un nouveau mot de passe - FNAIM</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      max-width: 480px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    .container {
+      background: #fff;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.15);
+    }
+
+    h2 {
+      background: #333;
+      color: #FFD700;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin: 0 0 16px;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin: 12px 0 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      background: #FFD700;
+      color: #333;
+      border: 0;
+      border-radius: 6px;
+      padding: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    #message {
+      display: none;
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h2>🔐 Définir un nouveau mot de passe</h2>
+
+    <form id="resetForm">
+      <label>Nouveau mot de passe</label>
+      <input type="password" id="newPassword" placeholder="Votre nouveau mot de passe">
+
+      <label>Confirmez le mot de passe</label>
+      <input type="password" id="confirmPassword" placeholder="Confirmez le mot de passe">
+
+      <button id="submitBtn">Valider</button>
+
+      <div id="message"></div>
+    </form>
+  </div>
+
+  <!-- JS reset -->
+  <script src="reset.js?v=1"></script>
+</body>
+</html>
