@@ -1,107 +1,63 @@
-// reset.js — logique de la page reset.html (soumission du nouveau mot de passe)
-
+// reset.js  v2 – 06-02-2026
 (() => {
-  const APIM_URL_FINAL = "https://apim-reset-pwd-fnaim.azure-api.net/reset-password/api/FinalizeReset";
+  /* ---------- constantes ---------- */
+  const API_FINAL = "https://apim-reset-pwd-fnaim.azure-api.net/reset-password/api/FinalizeReset";
+  const qs   = new URLSearchParams(window.location.search);
+  const token = (qs.get("token") || "").trim();
+  const upn   = (qs.get("upn")   || "").trim();
 
-  // --- utilitaires
+  /* ---------- helpers UI ---------- */
   const $ = (id) => document.getElementById(id);
+  const show = (txt, type) => {
+    const m = $("message");
+    if (!m) return;
+    m.style.display = "block";
+    m.textContent   = txt;
+    const ok  = type === "success";
+    const err = type === "error";
+    m.style.background = ok ? "#e6ffed" : err ? "#ffe6e6" : "#FFFACD";
+    m.style.border     = ok ? "2px solid #2ecc71" : err ? "2px solid #cc0000" : "2px solid #FFD700";
+    m.style.color      = ok ? "#2d5f3d" : err ? "#cc0000" : "#333";
+  };
 
-  function getTokenFromUrl() {
-    const params = new URLSearchParams(window.location.search);
-    return (params.get("token") || "").trim();
-  }
-
-  function showMessage(text, type = "info") {
-    const el = $("message");
-    if (!el) return;
-    el.style.display = "block";
-    el.textContent = text;
-
-    if (type === "success") {
-      el.style.background = "#F0FFF0";
-      el.style.color = "#2d5f3d";
-      el.style.border = "2px solid #7FC39A";
-    } else if (type === "error") {
-      el.style.background = "#ffe6e6";
-      el.style.color = "#cc0000";
-      el.style.border = "2px solid #cc0000";
-    } else {
-      el.style.background = "#FFFACD";
-      el.style.color = "#333";
-      el.style.border = "2px solid #FFD700";
-    }
-  }
-
-  function validatePassword(pw, confirm) {
-    if (!pw || !confirm) return "Veuillez saisir et confirmer votre mot de passe.";
-    if (pw !== confirm) return "Les deux mots de passe ne correspondent pas.";
-    // règle simple (tu pourras l’ajuster) : 10+ caractères
-    if (pw.length < 10) return "Le mot de passe doit contenir au moins 10 caractères.";
+  const validate = (p1, p2) => {
+    if (!p1 || !p2) return "Veuillez saisir et confirmer votre mot de passe.";
+    if (p1 !== p2)  return "Les deux mots de passe ne correspondent pas.";
+    if (p1.length < 10) return "Le mot de passe doit contenir au moins 10 caractères.";
     return null;
-  }
+  };
 
-  async function submitNewPassword(token, password) {
-    const payload = {
-      resetToken: token,
-      newPassword: password
-    };
-
-    const res = await fetch(APIM_URL_FINAL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-From-Frontend": "resetpw.fnaim.fr"
-      },
-      body: JSON.stringify(payload)
-    });
-
-    return res;
-  }
-
-  // --- initialisation page
+  /* ---------- formulaire ---------- */
   document.addEventListener("DOMContentLoaded", () => {
-    const token = getTokenFromUrl();
-    const form = $("resetForm");
-    const btn = $("submitBtn");
-
     if (!token) {
-      showMessage("Lien invalide ou token manquant.", "error");
-      if (btn) btn.disabled = true;
+      show("Lien invalide ou expiré.", "error");
+      $("submitBtn").disabled = true;
       return;
     }
 
-    if (form) {
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        if (!btn) return;
+    $("resetForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const p1 = $("newPassword").value.trim();
+      const p2 = $("confirmPassword").value.trim();
+      const err = validate(p1, p2);
+      if (err) { show(err, "error"); return; }
 
-        const pw = $("newPassword")?.value || "";
-        const confirm = $("confirmPassword")?.value || "";
+      $("submitBtn").disabled = true;
+      show("Envoi en cours…", "info");
 
-        const err = validatePassword(pw, confirm);
-        if (err) {
-          showMessage(err, "error");
-          return;
-        }
+      try {
+        const res = await fetch(API_FINAL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, upn, newPassword: p1 })
+        });
 
-        try {
-          btn.disabled = true;
-          showMessage("Envoi en cours...", "info");
-
-          const res = await submitNewPassword(token, pw);
-
-          if (res.ok) {
-            showMessage("Votre demande a été prise en compte. Veuillez vous reconnecter.", "success");
-          } else {
-            // on reste générique (pas d’indices)
-            showMessage("Votre demande a été prise en compte.", "success");
-          }
-        } catch {
-          showMessage("Votre demande a été prise en compte.", "success");
-        } finally {
-          btn.disabled = false;
-        }
-      });
-    }
+        show("Votre demande a été prise en compte.", res.ok ? "success" : "info");
+      } catch (e) {
+        show("Erreur réseau : " + e.message, "error");
+      } finally {
+        $("submitBtn").disabled = false;
+      }
+    });
   });
 })();
