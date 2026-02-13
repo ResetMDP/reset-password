@@ -42,7 +42,7 @@
       });
 
       if (res.ok) {
-        showMessage("Votre demande est prise en compte. Vérifiez votre email.", "success");
+        showMessage("Si les informations fournies sont correctes votre demande sera prise en compte. Vérifiez votre email.", "success");
       } else if (res.status === 403) {
         showMessage("CAPTCHA invalide. Veuillez réessayer.", "error");
       } else {
@@ -75,3 +75,4 @@
     }
   }
 })();
+
